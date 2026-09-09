@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMAG GEAR — BJJ Gi Price Calculator</title>
+<style>
+  :root {
+    --primary: #1a365d;
+    --accent: #2b6cb0;
+    --accent-light: #ebf8ff;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --muted: #718096;
+    --success: #276749;
+    --success-bg: #f0fff4;
+    --danger: #c53030;
+    --wa: #25D366;
+    --email: #2b6cb0;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 16px 12px 40px;
+  }
+  .container { max-width: 640px; margin: 0 auto; }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 18px 12px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius);
+  }
+  header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+  header .subtitle { font-size: 0.95rem; opacity: 0.95; margin-top: 4px; }
+  header .meta { font-size: 0.75rem; opacity: 0.8; margin-top: 8px; }
+  header .contact {
+    margin-top: 12px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  }
+  header .contact a {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+  header .contact a.wa { background: var(--wa); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card h2 {
+    font-size: 0.9rem;
+    color: var(--primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-light);
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .row:last-child { margin-bottom: 0; }
+  .field { flex: 1 1 140px; min-width: 120px; }
+  .field.full { flex: 1 1 100%; }
+  label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  select, input[type="number"], input[type="text"], input[type="tel"], input[type="email"] {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+    color: var(--text);
+    -webkit-appearance: none;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+  }
+  .size-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  .size-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 4px 6px 8px;
+  }
+  .size-table td { padding: 4px 4px; }
+  .size-table input {
+    padding: 10px;
+    font-size: 1rem;
+  }
+  .size-table .qty-col { width: 100px; }
+  .size-table .action-col { width: 44px; text-align: center; }
+  .btn-add {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1.5px dashed var(--accent);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn-add:hover { background: #d6eaf8; }
+  .btn-remove {
+    background: #fff5f5;
+    color: var(--danger);
+    border: 1px solid #feb2b2;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .split-box {
+    background: var(--accent-light);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .split-box .total-line {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 12px;
+  }
+  .split-row { display: flex; gap: 12px; }
+  .split-row .field { flex: 1; }
+  .split-status {
+    font-size: 0.8rem;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  .split-status.ok { color: var(--success); }
+  .split-status.err { color: var(--danger); }
+  .logo-block {
+    background: #f7fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .logo-block .logo-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f7fafc;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .radio-item:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .radio-item input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .result-card {
+    background: var(--success-bg);
+    border: 2px solid #9ae6b4;
+  }
+  .result-card h2 { color: var(--success); border-bottom-color: #c6f6d5; }
+  .total-display {
+    text-align: center;
+    padding: 16px 8px;
+  }
+  .total-display .amount {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--success);
+    font-variant-numeric: tabular-nums;
+  }
+  .total-display .per {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .breakdown { width: 100%; font-size: 0.85rem; margin-top: 8px; }
+  .breakdown td { padding: 5px 4px; border-bottom: 1px solid #c6f6d5; }
+  .breakdown td.amt { text-align: right; font-variant-numeric: tabular-nums; }
+  .submit-row { display: flex; gap: 10px; margin-top: 14px; }
+  .btn-wa, .btn-email {
+    flex: 1;
+    border: none;
+    padding: 14px 10px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff;
+  }
+  .btn-wa { background: var(--wa); }
+  .btn-email { background: var(--email); }
+  .note { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+  .alert {
+    background: #fffaf0; border: 1px solid #fbd38d; color: #744210;
+    padding: 10px; border-radius: 8px; font-size: 0.8rem; margin-top: 10px; display: none;
+  }
+  .alert.show { display: block; }
+  #otherColorWrap { display: none; margin-top: 10px; }
+  footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  footer strong { color: var(--primary); }
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 1000; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; padding: 22px; max-width: 380px;
+    width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .modal h3 { color: var(--primary); margin-bottom: 6px; font-size: 1.1rem; }
+  .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
+  .modal label { margin-top: 8px; }
+  .modal .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+  .modal .btn-row button {
+    flex: 1; padding: 12px; border-radius: 8px; font-weight: 700;
+    font-size: 0.9rem; cursor: pointer; border: none;
+  }
+  .btn-cancel { background: #edf2f7; color: var(--text); }
+  .btn-go-wa { background: var(--wa); color: #fff; }
+  .btn-go-email { background: var(--email); color: #fff; }
+  @media (max-width: 420px) {
+    .split-row { flex-direction: column; }
+    .submit-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>SMAG GEAR</h1>
+    <div class="subtitle">BJJ Gi Price Calculator</div>
+    <div class="meta">Manufacturers and Exporter of Martial Arts &amp; Grappling Gear<br>Minhaj House, Fateh Garh, Sialkot 51310, Punjab, Pakistan</div>
+    <div class="contact">
+      <a href="tel:+923331571985">📞 Call</a>
+      <a href="mailto:smaggear@gmail.com">✉️ Email</a>
+      <a class="wa" href="https://wa.me/923331571985" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </header>
+
+  <!-- 1. PRODUCT -->
+  <div class="card">
+    <h2>1. Choose Fabric &amp; Color</h2>
+    <div class="row">
+      <div class="field">
+        <label>Fabric / GSM</label>
+        <select id="gsm" onchange="calc()">
+          <option value="450">450 GSM (IBJJF Legal)</option>
+          <option value="380">380 GSM (IBJJF Legal)</option>
+          <option value="350">350 GSM (Lightweight)</option>
+          <option value="280">280 GSM (Lightweight)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Color</label>
+        <select id="colorSelect" onchange="toggleOtherColor()">
+          <option value="Black">Black</option>
+          <option value="White">White</option>
+          <option value="Blue">Blue</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div id="otherColorWrap">
+      <label>Type your color</label>
+      <input type="text" id="otherColor" placeholder="e.g. Navy, Red…" oninput="calc()" />
+    </div>
+  </div>
+
+  <!-- 2. SIZES -->
+  <div class="card">
+    <h2>2. Add Sizes &amp; Quantities</h2>
+    <table class="size-table">
+      <thead>
+        <tr><th>Size</th><th class="qty-col">Qty</th><th class="action-col"></th></tr>
+      </thead>
+      <tbody id="sizeBody"></tbody>
+    </table>
+    <button type="button" class="btn-add" onclick="addSizeRow()">+ Add another size</button>
+  </div>
+
+  <!-- 3. PLAIN / CUSTOM -->
+  <div class="card">
+    <h2>3. Plain or Customised?</h2>
+    <div class="split-box">
+      <div class="total-line">Total pieces: <span id="totalFromSizes">0</span></div>
+      <div class="split-row">
+        <div class="field">
+          <label>Plain (no logos)</label>
+          <input type="number" id="plainQty" min="0" value="0" oninput="onPlainChange()" />
+        </div>
+        <div class="field">
+          <label>Customised (with logos)</label>
+          <input type="number" id="customQty" min="0" value="0" oninput="onCustomChange()" />
+        </div>
+      </div>
+      <div class="split-status" id="splitStatus">Enter how many are plain and how many are customised.</div>
+    </div>
+    <p class="note">Example: 25 total → 10 plain + 15 customised. Logo charges apply only to customised gis.</p>
+  </div>
+
+  <!-- 4. LOGOS -->
+  <div class="card" id="customSection">
+    <h2>4. Logos (customised gis only)</h2>
+    <div id="logoList"></div>
+    <button type="button" class="btn-add" onclick="addLogo()">+ Add logo / patch</button>
+    <p class="note">Embroidery/Woven: 1–3 logos ≤4″ = $3/Gi · 4–5 logos = $5/Gi<br>Sublimated: Small $1 · Large 8″+ $1.50 each</p>
+  </div>
+
+  <!-- 5. INSIDE -->
+  <div class="card" id="insideSection">
+    <h2>5. Inside Sublimation (optional)</h2>
+    <div class="radio-group">
+      <label class="radio-item"><input type="radio" name="inside" value="none" checked onchange="calc()" /> None</label>
+      <label class="radio-item"><input type="radio" name="inside" value="rashguard" onchange="calc()" /> Rashguard fabric (+$15 / Gi)</label>
+      <label class="radio-item"><input type="radio" name="inside" value="interlock" onchange="calc()" /> Lightweight interlock (+$12 / Gi)</label>
+    </div>
+  </div>
+
+  <!-- 6. TOTAL -->
+  <div class="card result-card">
+    <h2>Your Estimated Price</h2>
+    <div class="total-display">
+      <div class="amount" id="grandTotal">$0.00</div>
+      <div class="per" id="perGi">—</div>
+    </div>
+    <table class="breakdown"><tbody id="breakdownBody"></tbody></table>
+    <div class="alert" id="alertBox"></div>
+    <div class="submit-row">
+      <button type="button" class="btn-wa" onclick="openModal('whatsapp')">WhatsApp Quote</button>
+      <button type="button" class="btn-email" onclick="openModal('email')">Email Quote</button>
+    </div>
+  </div>
+
+  <footer>
+    <strong>SMAG GEAR</strong><br>
+    Minhaj House, Fateh Garh, Sialkot 51310, Punjab, Pakistan<br>
+    +92 333 157 1985 · smaggear@gmail.com
+  </footer>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Send Quote</h3>
+    <p id="modalDesc">Enter your details. We will receive your full order.</p>
+    <label>Your Phone / WhatsApp</label>
+    <input type="tel" id="customerPhone" placeholder="+1 234 567 8900" />
+    <div id="emailWrap" style="display:none;margin-top:10px;">
+      <label>Your Email</label>
+      <input type="email" id="customerEmail" placeholder="you@example.com" />
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button type="button" id="modalBtn" class="btn-go-wa" onclick="sendQuote()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WA = "923331571985";
+const EMAIL = "smaggear@gmail.com";
+const PRICES = {
+  450: { t1: 35, t2: 33, t3: 30 },
+  380: { t1: 33, t2: 31, t3: 28 },
+  350: { t1: 31, t2: 29, t3: 26 },
+  280: { t1: 29, t2: 27, t3: 24 }
+};
+let logoId = 0, sizeId = 0, mode = "whatsapp";
+
+function unitPrice(gsm, qty) {
+  const p = PRICES[gsm];
+  if (qty <= 25) return p.t1;
+  if (qty <= 100) return p.t2;
+  return p.t3;
+}
+
+function toggleOtherColor() {
+  document.getElementById("otherColorWrap").style.display =
+    document.getElementById("colorSelect").value === "Other" ? "block" : "none";
+  calc();
+}
+function getColor() {
+  const s = document.getElementById("colorSelect").value;
+  return s === "Other" ? (document.getElementById("otherColor").value.trim() || "Other") : s;
+}
+
+function addSizeRow(size = "", qty = "") {
+  sizeId++;
+  const id = sizeId;
+  const tr = document.createElement("tr");
+  tr.id = "sz-" + id;
+  tr.innerHTML = `
+    <td><input type="text" class="sz-name" placeholder="A1, A2, M…" value="${size}" oninput="syncTotal()" /></td>
+    <td class="qty-col"><input type="number" class="sz-qty" min="0" placeholder="0" value="${qty}" oninput="syncTotal()" /></td>
+    <td class="action-col"><button type="button" class="btn-remove" onclick="removeSize(${id})">✕</button></td>`;
+  document.getElementById("sizeBody").appendChild(tr);
+  syncTotal();
+}
+function removeSize(id) {
+  const el = document.getElementById("sz-" + id);
+  if (el) el.remove();
+  syncTotal();
+}
+function getSizes() {
+  const rows = [];
+  let total = 0;
+  document.querySelectorAll("#sizeBody tr").forEach(tr => {
+    const size = tr.querySelector(".sz-name").value.trim();
+    const qty = parseInt(tr.querySelector(".sz-qty").value) || 0;
+    if (size || qty) { rows.push({ size: size || "—", qty }); total += qty; }
+  });
+  return { rows, total };
+}
+function syncTotal() {
+  const { total } = getSizes();
+  document.getElementById("totalFromSizes").textContent = total;
+  const plainEl = document.getElementById("plainQty");
+  const customEl = document.getElementById("customQty");
+  let plain = parseInt(plainEl.value) || 0;
+  let custom = parseInt(customEl.value) || 0;
+  if (plain + custom === 0 && total > 0) {
+    customEl.value = total;
+    plainEl.value = 0;
+  } else if (total > 0 && plain + custom !== total) {
+    if (plain > total) plain = total;
+    plainEl.value = plain;
+    customEl.value = total - plain;
+  }
+  calc();
+}
+function onPlainChange() {
+  const { total } = getSizes();
+  let p = Math.max(0, parseInt(document.getElementById("plainQty").value) || 0);
+  if (p > total) p = total;
+  document.getElementById("plainQty").value = p;
+  document.getElementById("customQty").value = Math.max(0, total - p);
+  calc();
+}
+function onCustomChange() {
+  const { total } = getSizes();
+  let c = Math.max(0, parseInt(document.getElementById("customQty").value) || 0);
+  if (c > total) c = total;
+  document.getElementById("customQty").value = c;
+  document.getElementById("plainQty").value = Math.max(0, total - c);
+  calc();
+}
+
+function addLogo(d = {}) {
+  logoId++;
+  const id = logoId;
+  const div = document.createElement("div");
+  div.className = "logo-block";
+  div.id = "logo-" + id;
+  div.innerHTML = `
+    <div class="logo-title">Logo #${id} <button type="button" class="btn-remove" onclick="removeLogo(${id})">✕</button></div>
+    <div class="row">
+      <div class="field">
+        <label>Type</label>
+        <select class="logo-type" onchange="calc()">
+          <option value="embroidery">Embroidery / Woven</option>
+          <option value="sub_small">Sublimated Small</option>
+          <option value="sub_large">Sublimated Large (8″+)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>How many logos</label>
+        <input type="number" class="logo-count" min="1" max="10" value="${d.count || 1}" oninput="calc()" />
+      </div>
+      <div class="field">
+        <label>Size (inches)</label>
+        <input type="number" class="logo-size" min="0.5" max="20" step="0.5" value="${d.size || 3}" oninput="calc()" />
+      </div>
+    </div>`;
+  if (d.type) div.querySelector(".logo-type").value = d.type;
+  document.getElementById("logoList").appendChild(div);
+  calc();
+}
+function removeLogo(id) {
+  const el = document.getElementById("logo-" + id);
+  if (el) el.remove();
+  calc();
+}
+
+function calc() {
+  const gsm = document.getElementById("gsm").value;
+  const { rows: sizeRows, total: totalQty } = getSizes();
+  const plainQty = Math.max(0, parseInt(document.getElementById("plainQty").value) || 0);
+  const customQty = Math.max(0, parseInt(document.getElementById("customQty").value) || 0);
+  const color = getColor();
+
+  const st = document.getElementById("splitStatus");
+  if (totalQty === 0) {
+    st.textContent = "Add sizes and quantities above.";
+    st.className = "split-status";
+  } else if (plainQty + customQty !== totalQty) {
+    st.textContent = "Plain + Customised must equal " + totalQty;
+    st.className = "split-status err";
+  } else {
+    st.textContent = "✓ " + plainQty + " plain + " + customQty + " customised";
+    st.className = "split-status ok";
+  }
+
+  const hasCustom = customQty > 0;
+  document.getElementById("customSection").style.opacity = hasCustom ? "1" : "0.45";
+  document.getElementById("insideSection").style.opacity = hasCustom ? "1" : "0.45";
+
+  const u = unitPrice(gsm, Math.max(totalQty, 1));
+  const baseTotal = u * totalQty;
+
+  let embN = 0, embBig = false, subS = 0, subL = 0, note = "";
+  if (hasCustom) {
+    document.querySelectorAll(".logo-block").forEach(b => {
+      const t = b.querySelector(".logo-type").value;
+      const n = Math.max(0, parseInt(b.querySelector(".logo-count").value) || 0);
+      const s = parseFloat(b.querySelector(".logo-size").value) || 0;
+      if (t === "embroidery") { embN += n; if (s > 4) embBig = true; }
+      else if (t === "sub_small") subS += n;
+      else if (t === "sub_large") subL += n;
+    });
+  }
+  let embU = 0;
+  if (embN > 0) {
+    if (embN <= 3) embU = 3;
+    else if (embN <= 5) embU = 5;
+    else { embU = 5; note = "More than 5 logos may need extra calculation."; }
+  }
+  if (embBig) note = (note ? note + " " : "") + "Logo over 4″ may need extra calculation.";
+
+  const embT = embU * customQty;
+  const subST = subS * 1 * customQty;
+  const subLT = subL * 1.5 * customQty;
+
+  const inside = document.querySelector('input[name="inside"]:checked').value;
+  let inU = 0, inL = "None";
+  if (hasCustom) {
+    if (inside === "rashguard") { inU = 15; inL = "Inside – Rashguard"; }
+    if (inside === "interlock") { inU = 12; inL = "Inside – Interlock"; }
+  }
+  const inT = inU * customQty;
+  const grand = baseTotal + embT + subST + subLT + inT;
+
+  window._q = {
+    gsm, totalQty, plainQty, customQty, color, sizeRows, u, baseTotal,
+    embN, embU, embT, subS, subST, subL, subLT, inL, inU, inT, grand, note
+  };
+
+  document.getElementById("grandTotal").textContent = "$" + grand.toFixed(2);
+  document.getElementById("perGi").textContent =
+    totalQty > 0 ? "≈ $" + (grand / totalQty).toFixed(2) + " average per Gi" : "—";
+
+  let html = "";
+  html += `<tr><td>Base ${gsm} GSM × ${totalQty} @ $${u.toFixed(2)} (${color})</td><td class="amt">$${baseTotal.toFixed(2)}</td></tr>`;
+  if (sizeRows.length)
+    html += `<tr><td colspan="2" style="font-size:0.75rem;color:#718096;">Sizes: ${sizeRows.map(r => r.size + "×" + r.qty).join(", ")} · ${plainQty} plain / ${customQty} custom</td></tr>`;
+  if (customQty > 0 && embN > 0)
+    html += `<tr><td>Embroidery/Woven ${embN} logo(s) @ $${embU} × ${customQty}</td><td class="amt">$${embT.toFixed(2)}</td></tr>`;
+  if (customQty > 0 && subS > 0)
+    html += `<tr><td>Sublimated small ${subS} × ${customQty}</td><td class="amt">$${subST.toFixed(2)}</td></tr>`;
+  if (customQty > 0 && subL > 0)
+    html += `<tr><td>Sublimated large ${subL} × ${customQty}</td><td class="amt">$${subLT.toFixed(2)}</td></tr>`;
+  if (customQty > 0 && inU > 0)
+    html += `<tr><td>${inL} × ${customQty}</td><td class="amt">$${inT.toFixed(2)}</td></tr>`;
+  document.getElementById("breakdownBody").innerHTML = html;
+
+  const al = document.getElementById("alertBox");
+  if (note) { al.textContent = "⚠ " + note; al.classList.add("show"); }
+  else al.classList.remove("show");
+}
+
+function openModal(m) {
+  mode = m;
+  document.getElementById("modalTitle").textContent = m === "whatsapp" ? "Send via WhatsApp" : "Send via Email";
+  document.getElementById("modalDesc").textContent = m === "whatsapp"
+    ? "Enter your phone. WhatsApp will open with your full order ready to send."
+    : "Enter phone and email. Your email app will open with the order ready to send.";
+  document.getElementById("emailWrap").style.display = m === "email" ? "block" : "none";
+  const btn = document.getElementById("modalBtn");
+  btn.textContent = m === "whatsapp" ? "Open WhatsApp" : "Open Email";
+  btn.className = m === "whatsapp" ? "btn-go-wa" : "btn-go-email";
+  document.getElementById("modal").classList.add("show");
+  document.getElementById("customerPhone").focus();
+}
+function closeModal() { document.getElementById("modal").classList.remove("show"); }
+
+function buildMsg(phone, email) {
+  const q = window._q;
+  if (!q) return null;
+  const sizes = q.sizeRows.length ? q.sizeRows.map(r => r.size + " × " + r.qty).join(", ") : "—";
+  let m = "SMAG GEAR – BJJ Gi Quote\n\n";
+  m += "Customer Phone: " + phone + "\n";
+  if (email) m += "Customer Email: " + email + "\n";
+  m += "\nFabric: " + q.gsm + " GSM\nColor: " + q.color + "\n";
+  m += "Total: " + q.totalQty + " pcs (" + q.plainQty + " plain + " + q.customQty + " customised)\n";
+  m += "Sizes: " + sizes + "\n\n";
+  m += "Base: $" + q.u.toFixed(2) + " × " + q.totalQty + " = $" + q.baseTotal.toFixed(2) + "\n";
+  if (q.customQty > 0 && q.embN > 0) m += "Embroidery/Woven: $" + q.embT.toFixed(2) + "\n";
+  if (q.customQty > 0 && q.subS > 0) m += "Sublimated small: $" + q.subST.toFixed(2) + "\n";
+  if (q.customQty > 0 && q.subL > 0) m += "Sublimated large: $" + q.subLT.toFixed(2) + "\n";
+  if (q.customQty > 0 && q.inU > 0) m += q.inL + ": $" + q.inT.toFixed(2) + "\n";
+  m += "\nTOTAL: $" + q.grand.toFixed(2) + "\n";
+  if (q.totalQty > 0) m += "(≈ $" + (q.grand / q.totalQty).toFixed(2) + " per Gi)\n";
+  if (q.note) m += "\nNote: " + q.note + "\n";
+  m += "\n— SMAG GEAR Calculator";
+  return m;
+}
+
+function sendQuote() {
+  const phone = document.getElementById("customerPhone").value.trim();
+  if (!phone) { alert("Please enter your phone number."); return; }
+  let email = "";
+  if (mode === "email") {
+    email = document.getElementById("customerEmail").value.trim();
+    if (!email) { alert("Please enter your email."); return; }
+  }
+  const msg = buildMsg(phone, email);
+  if (!msg) { alert("Please fill the form first."); return; }
+  if (mode === "whatsapp") {
+    window.open("https://wa.me/" + WA + "?text=" + encodeURIComponent(msg), "_blank");
+  } else {
+    window.location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent("BJJ Gi Quote – SMAG GEAR") + "&body=" + encodeURIComponent(msg);
+  }
+  closeModal();
+}
+
+// Start with sample rows so total is visible immediately
+addSizeRow("A2", 10);
+addSizeRow("A3", 10);
+addLogo({ type: "embroidery", count: 2, size: 3 });
+syncTotal();
+</script>
+</body>
+</html>
